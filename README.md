@@ -658,6 +658,7 @@ move        | Emitted when a file is moved. Five arguments are passed with the e
 remove      | Emitted when a file is removed. Two arguments are passed with the event, the directory from which the entity was removed and the entity name.
 mkdir       | Emitted when a directory is created. Three arguments are passed with the event, the directory in which the new directory was created, the name of the new directory created, and the directory itself.
 mkfile      | Emitted when a file is created. Three arguments are passed with the event, the directory in which the new file was created, the name of the new file created, and the file itself.
+create      | Emitted when a file or directory is created. Three arguments are passed with the event, the directory in which the new file was created, the name of the new entity created, and the entity itself.
 
 ## Logging
 
