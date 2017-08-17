@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.0 (built 2017-08-10 09:22:48)
+// Package: lostofs v1.0.1 (built 2017-08-17 17:28:01)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -9,7 +9,12 @@
 'use strict';
 
 
-let PouchDB      = require('pouchdb');
+let pouchdb = require('pouchdb');
+
+let PouchDB = typeof pouchdb === 'function'
+	? pouchdb
+	: pouchdb.default;
+
 let polylock     = require('polylock');
 let EventEmitter = require('events').EventEmitter;
 
@@ -281,7 +286,6 @@ let lostofs_file = (function() {
 
 	function base64_to_arraybuffer (base64) {
 
-		//let bin_str = atob(base64);
 		let bin_str = (new Buffer(base64, 'base64')).toString();
 		let len     = bin_str.length;
 		let bytes   = new Uint8Array(len);
@@ -476,6 +480,7 @@ let lostofs_dir = (function() {
 			}).then(function (newdir_doc) {
 				let new_dir = new lostofs_dir(fs, newdir_doc);
 				fs.emit('mkdir', this_dir, name, new_dir);
+				fs.emit('create', this_dir, name, new_dir);
 				return new_dir;
 			});
 
@@ -543,6 +548,7 @@ let lostofs_dir = (function() {
 			}).then(function (newfile_doc) {
 				let new_file = new lostofs_file(fs, newfile_doc);
 				fs.emit('mkfile', this_dir, name, new_file);
+				fs.emit('create', this_dir, name, new_file);
 				return new_file;
 			});
 		});
@@ -601,7 +607,6 @@ let lostofs_dir = (function() {
 			bin_str += String.fromCharCode(bytes[i]);
 		}
 
-		//return btoa(bin_str);
 		return (new Buffer(bin_str)).toString('base64');
 
 	}
