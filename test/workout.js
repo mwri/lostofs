@@ -712,10 +712,10 @@ describe('dir.remove', function () {
 		});
 	});
 
-	it('/ d1 fails second time (not empty)', function () {
+	it('/ d2 fails (not empty)', function () {
 		return new Promise(function (fff, rej) {
-			return root_dir.remove('d1').then(function () {
-				throw new Error('removing d1 from / apparently succeeded (should have sub entities)');
+			return root_dir.remove('d2').then(function () {
+				throw new Error('removing d2 from / apparently succeeded (should have sub entities)');
 			}).catch(function (err) {
 				if (/not empty/.exec(err))
 					fff(err);
@@ -760,6 +760,30 @@ describe('dir.remove', function () {
 					fff(err);
 				else
 					rej(err);
+			});
+		});
+	});
+
+	it('/ d1 succeeds', function () {
+		return root_dir.remove('d1').then(function () {
+			return root_dir.ls().then(function (ents) {
+				ls_expect(ents, [
+					['.', {inode:'i_1', type:'dir'}],
+					['..', {inode:'i_1', type:'dir'}],
+					['d2', {type:'dir'}],
+					['d3', {type:'dir'}],
+				]);
+			}).then(function () {
+				return new Promise(function (fff, rej) {
+					return fs.get('/d1').then(function () {
+						throw new Error('fs.get /d1 apparently works after removing /d1');
+					}).catch(function (err) {
+						if (/not found/.exec(err))
+							fff(err);
+						else
+							rej(err);
+					});
+				});
 			});
 		});
 	});
