@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.1 (built 2017-08-17 17:28:01)
+// Package: lostofs v1.0.2 (built 2017-08-18 09:35:17)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -421,7 +421,7 @@ let lostofs_dir = (function() {
 		return this.opt_refresh().then(function (this_dir) {
 
 			return db.get(this_doc.content[name]).then(function (rm_doc) {
-				if (rm_doc.type === 'dir' && Object.keys(rm_doc.content).length > 0)
+				if (rm_doc.type === 'dir' && Object.keys(rm_doc.content).length > 2)
 					throw new Error('directory not empty');
 				return db.remove(rm_doc);
 			}).then(function () {
