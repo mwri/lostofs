@@ -81,13 +81,13 @@ module.exports = function(grunt) {
 			'lostofs_fs_foobar',
 		],
 
-		exec: {
-			publish_git_status: {
-				cmd:      'git status --porcelain',
-				stdout:   false,
-				callback: function (err, stdout, stderr, args) {
-					if (stdout !== '')
-						grunt.fail.fatal('git status unclean\n'+stdout);
+		gitstatus: {
+			publish: {
+				options: {
+					callback: function (r) {
+						if (r.length > 0)
+							throw new Error('git status unclean');
+					},
 				},
 			},
 		},
@@ -96,7 +96,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('prepublish', [
 		'clean',
-		'exec:publish_git_status',
+		'gitstatus:publish',
 	]);
 
 	grunt.registerTask('dev', [
