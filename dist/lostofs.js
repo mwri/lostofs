@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.2 (built 2017-08-18 09:35:17)
+// Package: lostofs v1.0.3 (built 2017-08-29 16:24:09)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -13,7 +13,7 @@ let pouchdb = require('pouchdb');
 
 let PouchDB = typeof pouchdb === 'function'
 	? pouchdb
-	: pouchdb.default;
+	: /* istanbul ignore next */ pouchdb.default;
 
 let polylock     = require('polylock');
 let EventEmitter = require('events').EventEmitter;
@@ -792,25 +792,40 @@ let dbop = {
 
 		if (new_name in new_pardir_doc.content)
 			return Promise.reject(new Error('"'+new_name+'" already exists'));
-	
+
 		return new Promise(function (fff, rej) {
-			if (pardir_doc._id === new_pardir_doc._id) {
-				pardir_doc.content[new_name] = pardir_doc.content[old_name];
-				delete pardir_doc.content[old_name];
-				db.put(pardir_doc).then(function (put) {
-					fff(put);
+			if (pardir_doc._id === new_pardir_doc._id)
+				return fff(true);
+			function parent_dir (doc) {
+				return dbop.doc_name_to_doc(db, doc, '..').then(function (parent_doc) {
+					return doc._id !== parent_doc._id
+						? parent_doc._id === pardir_doc._id
+							? rej(new Error('cannot move an entity to a subdirectory of itself'))
+							: parent_dir(parent_doc)
+						: fff(true);
 				});
-			} else {
-				new_pardir_doc.content[new_name] = pardir_doc.content[old_name];
-				return db.put(new_pardir_doc).then(function () {
+			}
+			return parent_dir(new_pardir_doc);
+		}).then(function () {
+			return new Promise(function (fff, rej) {
+				if (pardir_doc._id === new_pardir_doc._id) {
+					pardir_doc.content[new_name] = pardir_doc.content[old_name];
 					delete pardir_doc.content[old_name];
 					db.put(pardir_doc).then(function (put) {
 						fff(put);
 					});
-				});
-			}
-		}).then(function (put) {
-			return db.get(put.id);
+				} else {
+					new_pardir_doc.content[new_name] = pardir_doc.content[old_name];
+					return db.put(new_pardir_doc).then(function () {
+						delete pardir_doc.content[old_name];
+						db.put(pardir_doc).then(function (put) {
+							fff(put);
+						});
+					});
+				}
+			}).then(function (put) {
+				return db.get(put.id);
+			});
 		});
 
 	},
