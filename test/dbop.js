@@ -646,6 +646,10 @@ describe('dbop (DB operation)', function () {
 				}
 			});
 			mocks.o(db).m('get').wrap(function (helper) {
+				if (helper.args[0] === 'i_40')
+					return Promise.resolve({_id:'i_40',rev:'123',type:'dir',content:{'.':'i_40','..':'i_30'}});
+				if (helper.args[0] === 'i_30')
+					return Promise.resolve({_id:'i_30',rev:'123',type:'dir',content:{'.':'i_30','..':'i_30'}});
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
 			return lostofs.test.dbop.move(
@@ -654,6 +658,48 @@ describe('dbop (DB operation)', function () {
 					).then(function (result) {
 				mocks.restore();
 				expect(put_count).toBe(2);
+			});
+		});
+
+		it('fails when destination dir is a subdir of the source dir', function () {
+			let mocks = new mockset();
+			let db = new PouchDB('lostofs_fs');
+			let put_count = 0;
+			mocks.o(db).m('put').wrap(function (helper) {
+				put_count++;
+				if (helper.args[0]._id === 'i_4') {
+					expect('foo' in helper.args[0].content).toBe(false);
+					return Promise.resolve({ok:true,id:helper.args[0]._id,rev:'123'});
+				} else if (helper.args[0]._id === 'i_40') {
+					expect('bar' in helper.args[0].content).toBe(true);
+					expect(helper.args[0].content.bar).toBe('i_5');
+					return Promise.resolve({ok:true,id:helper.args[0]._id,rev:'123'});
+				} else {
+					return Promise.reject(new Error('unexpected PouchDB put operation'));
+				}
+			});
+			mocks.o(db).m('get').wrap(function (helper) {
+				if (helper.args[0] === 'i_40')
+					return Promise.resolve({_id:'i_40',rev:'123',type:'dir',content:{'.':'i_40','..':'i_30'}});
+				if (helper.args[0] === 'i_30')
+					return Promise.resolve({_id:'i_30',rev:'123',type:'dir',content:{'.':'i_30','..':'i_4'}});
+				return Promise.resolve({_id:helper.args[0],rev:'123'});
+			});
+			return new Promise(function (fff, rej) {
+				return lostofs.test.dbop.move(
+						db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'foo',
+						{_id:'i_40',type:'dir',content:{'.':'i_40','..':'i_30'}}, 'bar'
+						).then(function (result) {
+					mocks.restore();
+					expect(put_count).toBe(2);
+				}).then(function () {
+					throw new Error('promise should have been rejected');
+				}).catch(function (err) {
+					if (/subdirectory of itself/.exec(err))
+						fff(err);
+					else
+						rej(err);
+				});
 			});
 		});
 

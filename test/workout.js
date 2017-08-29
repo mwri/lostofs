@@ -656,6 +656,19 @@ describe('dir.move', function () {
 		});
 	});
 
+	it('moving a directory to a sub directory of itself fails', function () {
+		return new Promise(function (fff, rej) {
+			root_dir.move('d2', '/d2/d2d3/d2move1').then(function () {
+				rej(new Error('the promise should have been rejected'));
+			}).catch(function (err) {
+				if (/subdirectory of itself/.exec(err))
+					fff(err);
+				else
+					rej(err);
+			});
+		});
+	});
+
 });
 
 
