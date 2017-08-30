@@ -420,28 +420,34 @@ describe('dbop (DB operation)', function () {
 
 		it('throws an error if doc is not a directory', function () {
 			let db = new PouchDB('lostofs_fs');
-			try {
-				lostofs.test.dbop.doc_name_to_doc(
-					db, {_id:'i_2',rev:'123',type:'file',content:{bar:'i_4'}}, 'bar'
-					);
-				throw new Error('exception should have been thrown');
-			} catch (err) {
-				if (!/not a dir/.exec(err))
-					throw err;
-			}
+			return new Promise(function (fff, rej) {
+				return lostofs.test.dbop.doc_name_to_doc(
+						db, {_id:'i_2',rev:'123',type:'file',content:{bar:'i_4'}}, 'bar'
+						).then(function () {
+					rej(new Error('should have rejected promise'));
+				}).catch(function (err) {
+					if (/not a dir/.exec(err))
+						fff(err);
+					else
+						rej(err);
+				});
+			});
 		});
 
 		it('throws an error if name is not in directory', function () {
 			let db = new PouchDB('lostofs_fs');
-			try {
+			return new Promise(function (fff, rej) {
 				lostofs.test.dbop.doc_name_to_doc(
-					db, {_id:'i_2',rev:'123',type:'dir',content:{bar:'i_4'}}, 'baz'
-					);
-				throw new Error('exception should have been thrown');
-			} catch (err) {
-				if (!/not found/.exec(err))
-					throw err;
-			}
+						db, {_id:'i_2',rev:'123',type:'dir',content:{bar:'i_4'}}, 'baz'
+						).then(function () {
+					rej(new Error('should have rejected promise'));
+				}).catch(function (err) {
+					if (/not found/.exec(err))
+						fff(err);
+					else
+						rej(err);
+				});
+			});
 		});
 
 		it('returns doc when in directory', function () {
