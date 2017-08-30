@@ -175,6 +175,17 @@ function ls_inodes_expect (ls_inodes, expected_ls_inodes) {
 }
 
 
+describe('dir.path', function () {
+
+	it('calculates correct path', function () {
+		return d2d3d3_dir.path().then(function (path) {
+			expect(path).toBe('/d2/d2d3/d2d3d3');
+		});
+	});
+
+});
+
+
 describe('dir.ls', function () {
 
 	it('/ as expected', function () {

@@ -83,10 +83,11 @@ fs.ready().then(function () {               // wait for the FS to come online
       1. [ls](#ls)
       2. [ls_names](#ls_names)
       3. [get](#get)
-      4. [move](#move)
-      5. [remove](#remove)
-      6. [mkdir](#mkdir)
-      7. [mkfile](#mkfile)
+      4. [path](#path)
+      5. [move](#move)
+      6. [remove](#remove)
+      7. [mkdir](#mkdir)
+      8. [mkfile](#mkfile)
    5. [File API reference](#file-api-reference)
       1. [size](#size)
       2. [encoding](#encoding)
@@ -524,6 +525,22 @@ dir.get('next_dir/dir_after_that').then(function (ent) {
     console.log('found another two levels');
 });
 ```
+
+#### path
+
+Returns the full path of a directory.
+
+```js
+fs.get('/in/here/further').then(function (dir) {
+    dir.path().then(function (path) {
+        console.log('dir full path is '+path);
+    });
+});
+```
+
+Note that the same functionality can't be provided for files because
+although hard links are not currently implemented by the filesystem, they
+could be, and thus multiple paths may apply.
 
 #### move
 
