@@ -738,8 +738,8 @@ LOSTOFS uses aspects of the NodeJS environment, as as such calls `require`.
 In order to use it in a web browser environment then it must be bundled in
 some way. Either require it, and bundle it with [Webpack](https://webpack.js.org/)
 or [Browserify](http://browserify.org/) along with the rest of your app, or
-if you currently do not use Webpack or Browserify you could bundle just
-LOSTOFS. [LOSTOFS FILEMANAGER](https://github.com/mwri/jquery.lostofsfileman)
-builds a 'just LOSTOFS' webpack bundle for its demo, which is then included
+if you currently do not use Webpack or Browserify you could use the pre built
+minified bundle, [LOSTOFS FILEMANAGER](https://github.com/mwri/jquery.lostofsfileman)
+uses this pre built bundle for its demo, which is then included
 by the HTML like any other dependency free Javascript module designed
 specifically for or to be compatible with the browser.
