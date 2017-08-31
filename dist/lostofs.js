@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.3 (built 2017-08-29 16:24:09)
+// Package: lostofs v1.0.4 (built 2017-08-31 16:32:51)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -366,6 +366,34 @@ let lostofs_dir = (function() {
 	};
 
 
+	lostofs_dir.prototype.path = function () {
+
+		let fs = this.fs;
+		let db = fs.db;
+
+		let path = '';
+
+		function parent_path (doc) {
+			return dbop.doc_name_to_doc(db, doc, '..').then(function (parent_doc) {
+				let ent_names = Object.keys(parent_doc.content);
+				for (let i = 0; i < ent_names.length; i++)
+					if (parent_doc.content[ent_names[i]] === doc._id) {
+						path = path ? ent_names[i]+'/'+path : ent_names[i];
+						if (parent_doc.content['..'] === parent_doc._id) {
+							path = '/'+path;
+							return path;
+						}
+						return parent_path(parent_doc);
+					}
+			});
+		}
+
+		return parent_path(this.ent_doc);
+
+	};
+
+
+
 	lostofs_dir.prototype.move = function (old_name, new_path) {
 
 		let fs = this.fs;
@@ -720,12 +748,12 @@ let dbop = {
 	doc_name_to_doc: function doc_name_to_doc (db, doc, name) {
 
 		if (doc.type !== 'dir')
-			throw new Error('not a directory');
+			return Promise.reject(new Error('not a directory'));
 
 		if (name in doc.content)
 			return db.get(doc.content[name]);
 		else
-			throw new Error('"'+name+'" not found');
+			return Promise.reject(new Error('"'+name+'" not found'));
 
 	},
 
