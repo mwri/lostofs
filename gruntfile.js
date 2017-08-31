@@ -50,6 +50,10 @@ module.exports = function(grunt) {
 			},
 		},
 
+		webpack: {
+			bundle: require('./webpack.config'),
+		},
+
 		watch: {
 			full: {
 				options: {
@@ -102,12 +106,14 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', [
 		'jshint',
 		'concat:es6',
+		'webpack',
 		'simplemocha',
 		]);
 
 	grunt.registerTask('build', [
 		'jshint',
 		'concat:es6',
+		'webpack',
 		'mocha_istanbul',
 		'strip_code',
 		]);
