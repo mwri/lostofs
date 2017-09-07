@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.4 (built 2017-08-31 16:32:51)
+// Package: lostofs v1.0.5 (built 2017-09-07 16:36:00)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -833,7 +833,11 @@ let dbop = {
 						: fff(true);
 				});
 			}
-			return parent_dir(new_pardir_doc);
+			return db.get(pardir_doc.content[old_name]).then(function (move_ent) {
+				if (move_ent.type === 'file')
+					return fff(true);
+				return parent_dir(new_pardir_doc);
+			});
 		}).then(function () {
 			return new Promise(function (fff, rej) {
 				if (pardir_doc._id === new_pardir_doc._id) {
