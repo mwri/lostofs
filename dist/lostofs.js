@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.5 (built 2017-09-07 16:36:00)
+// Package: lostofs v1.0.6 (built 2017-10-30 09:13:48)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
@@ -232,13 +232,12 @@ let lostofs_ent = (function() {
 		if (!this.fs.auto_refresh)
 			return Promise.resolve(this);
 
-		let fs       = this.fs;
-		let db       = fs.db;
-		let this_ent = this;
+		let fs = this.fs;
+		let db = fs.db;
 
-		return dbop.latest_ent_doc(db, this.ent_doc).then(function (latest_doc) {
-			this_ent.ent_doc = latest_doc;
-			return this_ent;
+		return dbop.latest_ent_doc(db, this.ent_doc).then((latest_doc) => {
+			this.ent_doc = latest_doc;
+			return this;
 		});
 
 	};
@@ -267,36 +266,55 @@ let lostofs_file = (function() {
 	lostofs_file.prototype.mime_type = function () { return this.ent_doc.mime_type; };
 
 
-	lostofs_file.prototype.data = function () {
+	lostofs_file.prototype.data = function (new_content, options) {
 
 		let fs = this.fs;
 		let db = fs.db;
 
-		let this_doc = this.ent_doc;
+		if (new_content !== undefined) {
 
-		if (this_doc.encoding === undefined)
-			return Promise.resolve(this_doc.content);
-		else if (this_doc.encoding === 'arraybuffer')
-			return Promise.resolve(base64_to_arraybuffer(this_doc.content));
-		else
-			return Promise.reject(new Error('encoding '+this_doc.encoding+' unknown/unsupported'));
+			if (options === undefined)
+				options = {};
 
-	};
+			let encoding;
+			let mime_type;
+			let mod_time;
+			let size;
 
+			if (typeof new_content === 'object'
+					&& (new_content.constructor === ArrayBuffer || ArrayBuffer.isView(new_content))) {
+				size        = new_content.byteLength;
+				new_content = arraybuffer_to_base64(new_content);
+				encoding    = 'arraybuffer';
+			} else {
+				size = new_content.length;
+			}
 
-	function base64_to_arraybuffer (base64) {
+			mime_type = options.mime_type;
+			mod_time  = options.mod_time || new Date();
 
-		let bin_str = (new Buffer(base64, 'base64')).toString();
-		let len     = bin_str.length;
-		let bytes   = new Uint8Array(len);
+			return dbop.savefile(
+					db, this.ent_doc, new_content, size, mod_time, encoding, mime_type
+					).then(() => {
+				if (encoding === undefined)
+					return new_content;
+				else
+					return base64_to_arraybuffer(new_content);
+			});
 
-		for (let i = 0; i < len; i++) {
-			bytes[i] = bin_str.charCodeAt(i);
 		}
 
-		return bytes.buffer;
+		return this.opt_refresh().then(() => {
+			let ent_doc = this.ent_doc;
+			if (ent_doc.encoding === undefined)
+				return ent_doc.content;
+			else if (ent_doc.encoding === 'arraybuffer')
+				return base64_to_arraybuffer(ent_doc.content);
+			else
+				throw new Error('encoding '+ent_doc.encoding+' unknown/unsupported');
+		});
 
-	}
+	};
 
 
 	return lostofs_file;
@@ -625,25 +643,38 @@ let lostofs_dir = (function() {
 	};
 
 
-	function arraybuffer_to_base64 (buffer) {
-
-		let bin_str = '';
-		let bytes   = new Uint8Array(buffer);
-		let len     = bytes.byteLength;
-
-		for (let i = 0; i < len; i++) {
-			bin_str += String.fromCharCode(bytes[i]);
-		}
-
-		return (new Buffer(bin_str)).toString('base64');
-
-	}
-
-
 	return lostofs_dir;
 
 
 })();
+
+
+function base64_to_arraybuffer (base64) {
+
+	let bin_str = (new Buffer(base64, 'base64')).toString();
+	let len     = bin_str.length;
+	let bytes   = new Uint8Array(len);
+
+	for (let i = 0; i < len; i++)
+		bytes[i] = bin_str.charCodeAt(i);
+
+	return bytes.buffer;
+
+}
+
+
+function arraybuffer_to_base64 (buffer) {
+
+	let bin_str = '';
+	let bytes   = new Uint8Array(buffer);
+	let len     = bytes.byteLength;
+
+	for (let i = 0; i < len; i++)
+		bin_str += String.fromCharCode(bytes[i]);
+
+	return (new Buffer(bin_str)).toString('base64');
+
+}
 
 
 let dbop = {
@@ -796,7 +827,7 @@ let dbop = {
 			_id:       inode,
 			type:      'file',
 			size:      size,
-			mod_time:  new Date(),
+			mod_time:  mod_time || new Date(),
 			links:     1,
 			content:   content,
 			encoding:  encoding,
@@ -809,6 +840,23 @@ let dbop = {
 			return db.put(pardir_doc).then(function () {
 				return new_file_doc;
 			});
+		});
+
+	},
+
+	savefile: function save (db, doc, content, size, mod_time, encoding, mime_type) {
+
+		if (doc.type !== 'file')
+			return Promise.reject(new Error('cannot save the content of a directory'));
+
+		doc.size      = size;
+		doc.mod_time  = mod_time || new Date();
+		doc.content   = content;
+		doc.encoding  = encoding;
+		doc.mime_type = mime_type;
+
+		return db.put(doc).then((put) => {
+			return db.get(doc._id);
 		});
 
 	},
