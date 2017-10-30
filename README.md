@@ -184,8 +184,9 @@ when you create it, like this:
 let fs = new lostofs_fs({unformatted:'format'});
 ```
 
-This will cause `fs.format()` to be done - if and only if - the filesystem
-is empty and apparently fresh. If the back end local storage database
+This will cause `fs.format()` to be done, if and only if the local
+storage which is designated to be used to store the filesystem data
+is completely empty/uninitialised. If local storage exists however, but
 appears not to be a filesystem (because certain data is missing or invalid)
 but there is SOME data present, then from a filesystem perspective it will
 be deemed corrupt and automatic formatting will not take place in case the
@@ -231,7 +232,7 @@ For most initialisation error cases, the 'ready' promise will be rejected
 (these are non routine cases of permanent failure). In the case of an
 unformatted filesystem however the promise will remain unresolved. This
 is because an unformatted filesystem is a routine state for the start of
-a filesystems life time.
+a filesystems life cycle.
 
 ## Accessing the filesystem
 
@@ -270,7 +271,7 @@ fs.get('/').then(function (root_dir) {
 });
 ```
 
-Doing this with a refresh filesystem should yield an output like this:
+Doing this with a fresh filesystem should yield an output like this:
 
 ```js
 Listing / (inode i_1)
@@ -650,14 +651,31 @@ let mime_type = file.mime_type();
 
 #### data
 
-Returns a promise that resolves to the content of the file.
+Returns a promise that resolves to the content of the file:
 
 ```js
-ent.data().then(function (content) {
+file.data().then(function (content) {
     console.log('file data loaded:');
     console.log(content);
 });
 ```
+
+An optional parameter may be passed to change/set the content:
+
+```js
+file.data(new_content).then(function (content) {
+    console.log('file saved:');
+    console.log(content);
+});
+```
+
+A second optional argument to `data()` may be provided. If given it must
+be an object providing named parameters:
+
+Name      | Usage
+:--       | :--
+mime_type | Sets the mime type of the data.
+mod_time  | Use this (must be a `Date` object) as the modification time of the file (defaults to now).
 
 ## Events
 

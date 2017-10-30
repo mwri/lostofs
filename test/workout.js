@@ -814,5 +814,48 @@ describe('dir.remove', function () {
 
 });
 
+describe('file.data', function () {
+
+	it('fetches the file content', function () {
+		return d3f1_file.data().then(function (content) {
+			expect(content).toBe('d3f1_content');
+		});
+	});
+
+	it('sets/saves the file content', function () {
+		return d3f1_file.data('d3f1_content_v2').then(function (content) {
+			expect(content).toBe('d3f1_content_v2');
+		}).then(() => {
+			return d3f1_file.data().then(function (content) {
+				expect(content).toBe('d3f1_content_v2');
+			});
+		});
+	});
+
+	it('sets/saves the file content (array buffer)', function () {
+		let text_content = 'd3f1_content_v3';
+		let buf = new Uint8Array(text_content.length);
+		for (let i = 0; i < text_content.length; i++) {
+			buf[i] = text_content.charCodeAt(i);
+		}
+		return d3f1_file.data(buf, {}).then(function (content) {
+			expect(
+				typeof content === 'object' && content.constructor === ArrayBuffer
+				).toBe(true);
+			let decoded_content = String.fromCharCode.apply(null, new Uint8Array(content));
+			expect(decoded_content).toBe('d3f1_content_v3');
+		}).then(() => {
+			return d3f1_file.data().then(function (content) {
+				expect(
+					typeof content === 'object' && content.constructor === ArrayBuffer
+					).toBe(true);
+				let decoded_content = String.fromCharCode.apply(null, new Uint8Array(content));
+				expect(decoded_content).toBe('d3f1_content_v3');
+			});
+		});
+	});
+
+});
+
 
 })();

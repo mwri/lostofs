@@ -555,7 +555,6 @@ describe('dbop (DB operation)', function () {
 					db, 'i_5', {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}},
 					'bat', 'bat_content', 100, new Date(), undefined, 'test/type'
 					).then(function (result) {
-				mocks.restore();
 				expect(file_ent_created).toBe(1);
 				expect(pardir_ent_updated).toBe(1);
 				expect(result._id).toEqual('i_5');
@@ -566,6 +565,116 @@ describe('dbop (DB operation)', function () {
 				expect(result.size).toEqual(100);
 				expect(result.mime_type).toEqual('test/type');
 				expect(result.encoding).toEqual(undefined);
+			}).then(() => {
+				return lostofs.test.dbop.mkfile(
+					db, 'i_5', {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}},
+					'bat', 'bat_content', 100, undefined, undefined, 'test/type'
+					);
+			}).then(function (result) {
+				mocks.restore();
+				expect(file_ent_created).toBe(2);
+				expect(pardir_ent_updated).toBe(2);
+				expect(result._id).toEqual('i_5');
+				expect(result.type).toEqual('file');
+				expect(result.content).toEqual('bat_content');
+				expect(result._rev).toEqual('123');
+				expect(result.mod_time.constructor).toEqual(Date);
+				expect(result.size).toEqual(100);
+				expect(result.mime_type).toEqual('test/type');
+				expect(result.encoding).toEqual(undefined);
+			}).catch((err) => {
+				mocks.restore();
+				throw err;
+			});
+		});
+
+	});
+
+	describe('dbop.save', function () {
+
+		it('changes the file content', function () {
+			let mocks = new mockset();
+			let db = new PouchDB('lostofs_fs');
+			let file_ent_updated = 0;
+			let file_ent_fetched = 0;
+			let updated_doc;
+			mocks.o(db).m('put').wrap(function (helper) {
+				if (helper.args[0]._id === 'i_5') {
+					file_ent_updated++;
+					updated_doc = {
+						_id:       'i_5',
+						_rev:      '123',
+						type:      'file',
+						content:   helper.args[0].content,
+						size:      helper.args[0].size,
+						mod_time:  helper.args[0].mod_time,
+						encoding:  helper.args[0].encoding,
+						mime_type: helper.args[0].mime_type,
+						};
+					return Promise.resolve({ok:true,id:helper.args[0]._id,rev:'123'});
+				} else {
+					return Promise.reject(new Error('unexpected PouchDB put operation'));
+				}
+			});
+			mocks.o(db).m('get').wrap(function (helper) {
+				if (helper.args[0] === 'i_5') {
+					file_ent_fetched++;
+					return updated_doc;
+				} else {
+					return Promise.reject(new Error('unexpected PouchDB get operation'));
+				}
+			});
+			return lostofs.test.dbop.savefile(
+					db, {_id:'i_5',type:'file'}, 'bat_content_v2',
+					101, new Date(), undefined, 'test/type'
+					).then((result) => {
+				expect(file_ent_updated).toBe(1);
+				expect(file_ent_fetched).toBe(1);
+				expect(result._id).toEqual('i_5');
+				expect(result.type).toEqual('file');
+				expect(result.content).toEqual('bat_content_v2');
+				expect(result._rev).toEqual('123');
+				expect(result.mod_time.constructor).toEqual(Date);
+				expect(result.size).toEqual(101);
+				expect(result.mime_type).toEqual('test/type');
+				expect(result.encoding).toEqual(undefined);
+			}).then(() => {
+				return lostofs.test.dbop.savefile(
+					db, {_id:'i_5',type:'file'}, 'bat_content_v2',
+					101, undefined, undefined, 'test/type'
+					);
+			}).then((result) => {
+				mocks.restore();
+				expect(file_ent_updated).toBe(2);
+				expect(file_ent_fetched).toBe(2);
+				expect(result._id).toEqual('i_5');
+				expect(result.type).toEqual('file');
+				expect(result.content).toEqual('bat_content_v2');
+				expect(result._rev).toEqual('123');
+				expect(result.mod_time.constructor).toEqual(Date);
+				expect(result.size).toEqual(101);
+				expect(result.mime_type).toEqual('test/type');
+				expect(result.encoding).toEqual(undefined);
+			}).catch((err) => {
+				mocks.restore();
+				throw err;
+			});
+		});
+
+		it('throws an error when the target is a directory', function () {
+			let db = new PouchDB('lostofs_fs');
+			return new Promise(function (fff, rej) {
+				return lostofs.test.dbop.savefile(
+						db, {_id:'i_5',type:'dir'}, 'bat_content_v2',
+						101, undefined, undefined, 'test/type'
+						).then((result) => {
+					rej(new Error('should have rejected promise'));
+				}).catch(function (err) {
+					if (/cannot save the content of a directory/.exec(err))
+						fff(err);
+					else
+						rej(err);
+				});
 			});
 		});
 

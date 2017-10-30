@@ -47,7 +47,7 @@ describe('mkfile', function () {
 
 	it('"bar" failed second time', function () {
 		return new Promise(function (ff, rf) {
-			root_dir.mkfile('bar').then(function (bar_ent) {
+			root_dir.mkfile('bar', 'the_bar_content').then(function (bar_ent) {
 				rf(new Error('mkfile "bar" worked second time (should fail)'));
 			}).catch(function (err) {
 				ff(err);
