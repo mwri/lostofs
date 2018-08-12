@@ -1,4 +1,4 @@
-// Package: lostofs v1.0.6 (built 2017-10-30 09:13:48)
+// Package: lostofs v1.0.7 (built 2018-08-12 12:05:24)
 // Copyright: (C) 2017 Michael Wright <mjw@methodanalysis.com>
 // License: MIT
 
