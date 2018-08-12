@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "polylock": "^1.0.5",
-    "pouchdb": "^6.3.4"
+    "pouchdb": "^6.4.3"
   },
   "repository": {
     "type": "git",
@@ -41,22 +41,22 @@
     "babili-webpack-plugin": "^0.1.2",
     "chai-jasmine": "^1.0.7",
     "coveralls": "=2.11.16",
-    "expose-loader": "^0.7.3",
-    "grunt": "^1.0.1",
+    "expose-loader": "^0.7.5",
+    "grunt": "^1.0.3",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-uglify": "^3.0.1",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-git": "^1.0.6",
+    "grunt-contrib-uglify": "^3.4.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-git": "^1.0.9",
     "grunt-mocha-istanbul": "^5.0.2",
     "grunt-simple-mocha": "^0.4.1",
     "grunt-strip-code": "^1.0.6",
-    "grunt-webpack": "^3.0.2",
+    "grunt-webpack": "^3.1.2",
     "istanbul": "^0.4.5",
     "load-grunt-tasks": "^3.5.2",
     "mimock": "^0.6.0",
-    "webpack": "^3.5.5"
+    "webpack": "^3.12.0"
   }
 }
