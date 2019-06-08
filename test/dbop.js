@@ -10,7 +10,7 @@ let mockset = mimock.mockset;
 let gl_mocks    = global.lostofs_fs_tests.gl_mocks;
 let pouchdb_lib = global.lostofs_fs_tests.pouchdb_lib;
 
-let lostofs    = require('./../dist/lostofs.js');
+let lostofs    = require('./../lib/lostofs.js');
 let lostofs_fs = lostofs.fs;
 
 let chai_jasmine = require('chai-jasmine');
@@ -37,7 +37,7 @@ describe('dbop (DB operation)', function () {
 				expect(helper.args[0]).toBe(undefined);
 				return {a:1};
 			});
-			expect(lostofs.test.dbop.create()).toEqual({a:1});
+			expect(lostofs.dbop.create()).toEqual({a:1});
 			cons_wrap.restore();
 		});
 
@@ -46,7 +46,7 @@ describe('dbop (DB operation)', function () {
 				expect(helper.args[0]).toBe('named');
 				return {a:2};
 			});
-			expect(lostofs.test.dbop.create('named')).toEqual({a:2});
+			expect(lostofs.dbop.create('named')).toEqual({a:2});
 			cons_wrap.restore();
 		});
 
@@ -55,7 +55,7 @@ describe('dbop (DB operation)', function () {
 	describe('dbop.destroy', function () {
 
 		it('skips undefined db', function () {
-			let destroy_prom = lostofs.test.dbop.destroy(undefined);
+			let destroy_prom = lostofs.dbop.destroy(undefined);
 			return destroy_prom.then(function (result) {
 				expect(result).toBe(true);
 			});
@@ -69,7 +69,7 @@ describe('dbop (DB operation)', function () {
 				destroy_seen++;
 				return Promise.resolve(true);
 			});
-			return lostofs.test.dbop.destroy(db).then(function (result) {
+			return lostofs.dbop.destroy(db).then(function (result) {
 				expect(result).toBe(true);
 				expect(destroy_seen).toBe(1);
 				mocks.restore();
@@ -88,7 +88,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.resolve({ok:true,id:helper.args[0]._id,rev:'123'});
 				return Promise.reject(new Error('unexpected PouchDB operation'));
 			});
-			return lostofs.test.dbop.mk_superblock(db).then(function (result) {
+			return lostofs.dbop.mk_superblock(db).then(function (result) {
 				mocks.restore();
 			});
 		});
@@ -110,7 +110,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.reject(new Error('unexpected PouchDB info() operation'));
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('ok');
 				mocks.restore();
 			});
@@ -129,7 +129,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.resolve({doc_count:0});
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('unformatted');
 				mocks.restore();
 			});
@@ -148,7 +148,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.resolve({doc_count:0});
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('unformatted');
 				mocks.restore();
 			});
@@ -167,7 +167,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.resolve({doc_count:1});
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('corrupt');
 				mocks.restore();
 			});
@@ -186,7 +186,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.resolve({doc_count:1});
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('corrupt');
 				mocks.restore();
 			});
@@ -205,7 +205,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.reject(new Error('unexpected PouchDB info() operation'));
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('corrupt');
 				mocks.restore();
 			});
@@ -224,7 +224,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('info').wrap(function (helper) {
 				return Promise.reject(new Error('unexpected PouchDB info() operation'));
 			});
-			return lostofs.test.dbop.db_init_state(db).then(function (result) {
+			return lostofs.dbop.db_init_state(db).then(function (result) {
 				expect(result).toBe('corrupt');
 				mocks.restore();
 			});
@@ -242,7 +242,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.resolve({ok:true,id:helper.args[0]._id,rev:'123'});
 				return Promise.reject(new Error('unexpected PouchDB operation'));
 			});
-			return lostofs.test.dbop.mkrootdir(db).then(function (result) {
+			return lostofs.dbop.mkrootdir(db).then(function (result) {
 				mocks.restore();
 			});
 		});
@@ -257,10 +257,10 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('get').wrap(function (helper) {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			return lostofs.test.dbop.latest_ent_doc(db, {_id:'i_100'}).then(function (result) {
+			return lostofs.dbop.latest_ent_doc(db, {_id:'i_100'}).then(function (result) {
 				expect(typeof result).toBe('object');
 				expect(result._id).toBe('i_100');
-				return lostofs.test.dbop.latest_ent_doc(db, {_id:'i_2000'});
+				return lostofs.dbop.latest_ent_doc(db, {_id:'i_2000'});
 			}).then(function (result) {
 				expect(typeof result).toBe('object');
 				expect(result._id).toBe('i_2000');
@@ -278,10 +278,10 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('get').wrap(function (helper) {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			return lostofs.test.dbop.inode_to_doc(db, 'i_100').then(function (result) {
+			return lostofs.dbop.inode_to_doc(db, 'i_100').then(function (result) {
 				expect(typeof result).toBe('object');
 				expect(result._id).toBe('i_100');
-				return lostofs.test.dbop.inode_to_doc(db, 'i_2000');
+				return lostofs.dbop.inode_to_doc(db, 'i_2000');
 			}).then(function (result) {
 				expect(typeof result).toBe('object');
 				expect(result._id).toBe('i_2000');
@@ -300,7 +300,7 @@ describe('dbop (DB operation)', function () {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
 			return new Promise(function (fff, rej) {
-				lostofs.test.dbop.path_to_doc(db, 'foo/bar').then(function (result) {
+				lostofs.dbop.path_to_doc(db, 'foo/bar').then(function (result) {
 					rej(new Error('not rejected'));
 				}).catch(function (err) {
 					fff(err);
@@ -319,13 +319,13 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('get').wrap(function (helper) {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			let doc_path_to_doc_wrap = mocks.o(lostofs.test.dbop).m('doc_path_to_doc').w(function (helper) {
+			let doc_path_to_doc_wrap = mocks.o(lostofs.dbop).m('doc_path_to_doc').w(function (helper) {
 				expect(helper.args[0]).toBe(db);
 				expect(helper.args[1]).toEqual({_id:'i_1',rev:'123'});
 				expect(helper.args[2]).toBe('/foo/bar');
 				return Promise.resolve(true);
 			});
-			return lostofs.test.dbop.path_to_doc(db, '/foo/bar').then(function (result) {
+			return lostofs.dbop.path_to_doc(db, '/foo/bar').then(function (result) {
 				mocks.restore();
 				expect(result).toBe(true);
 			});
@@ -337,14 +337,14 @@ describe('dbop (DB operation)', function () {
 
 		it('empty path returns current inode', function () {
 			let db = new PouchDB('lostofs_fs');
-			expect(lostofs.test.dbop.doc_path_to_doc(db, {_id:'i_1',rev:'123'}, '')).toEqual({_id:'i_1',rev:'123'});
+			expect(lostofs.dbop.doc_path_to_doc(db, {_id:'i_1',rev:'123'}, '')).toEqual({_id:'i_1',rev:'123'});
 		});
 
 		it('strips preceeding slashes', function () {
 			let mocks = new mockset();
 			let db = new PouchDB('lostofs_fs');
 			let call_count = 0;
-			let doc_path_to_doc_wrap = mocks.o(lostofs.test.dbop).m('doc_path_to_doc').w(function (helper) {
+			let doc_path_to_doc_wrap = mocks.o(lostofs.dbop).m('doc_path_to_doc').w(function (helper) {
 				call_count++;
 				expect(helper.args[0]).toBe(db);
 				expect(helper.args[1]).toEqual({_id:'i_1',rev:'123'});
@@ -356,7 +356,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.resolve(true);
 				}
 			});
-			return lostofs.test.dbop.doc_path_to_doc(db, {_id:'i_1',rev:'123'}, '/foo/bar').then(function (result) {
+			return lostofs.dbop.doc_path_to_doc(db, {_id:'i_1',rev:'123'}, '/foo/bar').then(function (result) {
 				mocks.restore();
 				expect(result).toBe(true);
 				expect(call_count).toBe(2);
@@ -366,13 +366,13 @@ describe('dbop (DB operation)', function () {
 		it('calls through to dbop.doc_name_to_doc when no slashes', function () {
 			let mocks = new mockset();
 			let db = new PouchDB('lostofs_fs');
-			let doc_name_to_doc_wrap = mocks.o(lostofs.test.dbop).m('doc_name_to_doc').w(function (helper) {
+			let doc_name_to_doc_wrap = mocks.o(lostofs.dbop).m('doc_name_to_doc').w(function (helper) {
 				expect(helper.args[0]).toBe(db);
 				expect(helper.args[1]).toEqual({_id:'i_2',rev:'123'});
 				expect(helper.args[2]).toBe('bar');
 				return Promise.resolve({_id:'i_3',rev:'123'});
 			});
-			return lostofs.test.dbop.doc_path_to_doc(db, {_id:'i_2',rev:'123'}, 'bar').then(function (result) {
+			return lostofs.dbop.doc_path_to_doc(db, {_id:'i_2',rev:'123'}, 'bar').then(function (result) {
 				mocks.restore();
 				expect(result).toEqual({_id:'i_3',rev:'123'});
 			});
@@ -382,7 +382,7 @@ describe('dbop (DB operation)', function () {
 			let mocks = new mockset();
 			let db = new PouchDB('lostofs_fs');
 			let call_count = 0;
-			let doc_name_to_doc_wrap = mocks.o(lostofs.test.dbop).m('doc_name_to_doc').w(function (helper) {
+			let doc_name_to_doc_wrap = mocks.o(lostofs.dbop).m('doc_name_to_doc').w(function (helper) {
 				call_count++;
 				if (call_count === 2) {
 					expect(helper.args[0]).toBe(db);
@@ -393,7 +393,7 @@ describe('dbop (DB operation)', function () {
 					throw new Error('unexpected or out of order call to doc_name_to_doc');
 				}
 			});
-			let doc_path_to_doc_wrap = mocks.o(lostofs.test.dbop).m('doc_path_to_doc').w(function (helper) {
+			let doc_path_to_doc_wrap = mocks.o(lostofs.dbop).m('doc_path_to_doc').w(function (helper) {
 				call_count++;
 				expect(helper.args[0]).toBe(db);
 				if (call_count === 1) {
@@ -408,7 +408,7 @@ describe('dbop (DB operation)', function () {
 					throw new Error('unexpected or out of order call to doc_path_to_doc');
 				}
 			});
-			return lostofs.test.dbop.doc_path_to_doc(db, {_id:'i_2',rev:'123'}, 'foo/bar').then(function (result) {
+			return lostofs.dbop.doc_path_to_doc(db, {_id:'i_2',rev:'123'}, 'foo/bar').then(function (result) {
 				mocks.restore();
 				expect(result).toEqual({_id:'i_4',rev:'123'});
 			});
@@ -421,7 +421,7 @@ describe('dbop (DB operation)', function () {
 		it('throws an error if doc is not a directory', function () {
 			let db = new PouchDB('lostofs_fs');
 			return new Promise(function (fff, rej) {
-				return lostofs.test.dbop.doc_name_to_doc(
+				return lostofs.dbop.doc_name_to_doc(
 						db, {_id:'i_2',rev:'123',type:'file',content:{bar:'i_4'}}, 'bar'
 						).then(function () {
 					rej(new Error('should have rejected promise'));
@@ -437,7 +437,7 @@ describe('dbop (DB operation)', function () {
 		it('throws an error if name is not in directory', function () {
 			let db = new PouchDB('lostofs_fs');
 			return new Promise(function (fff, rej) {
-				lostofs.test.dbop.doc_name_to_doc(
+				lostofs.dbop.doc_name_to_doc(
 						db, {_id:'i_2',rev:'123',type:'dir',content:{bar:'i_4'}}, 'baz'
 						).then(function () {
 					rej(new Error('should have rejected promise'));
@@ -456,7 +456,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('get').wrap(function (helper) {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			return lostofs.test.dbop.doc_name_to_doc(
+			return lostofs.dbop.doc_name_to_doc(
 					db, {_id:'i_2',rev:'123',type:'dir',content:{bar:'i_4'}}, 'bar'
 					).then(function (result) {
 				expect(result).toEqual({_id:'i_4',rev:'123'});
@@ -487,7 +487,7 @@ describe('dbop (DB operation)', function () {
 				expect(helper.args[0].next === 11);
 				return Promise.resolve({ok:true,id:helper.args[0]._id,next:11,rev:'123'});
 			});
-			return lostofs.test.dbop.next_inode(db).then(function (result) {
+			return lostofs.dbop.next_inode(db).then(function (result) {
 				mocks.restore();
 				expect(result).toEqual('i_10');
 				expect(call_count).toBe(2);
@@ -516,7 +516,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.reject(new Error('unexpected PouchDB put operation'));
 				}
 			});
-			return lostofs.test.dbop.mkdir(
+			return lostofs.dbop.mkdir(
 					db, 'i_5', {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}}, 'baz'
 					).then(function (result) {
 				mocks.restore();
@@ -551,7 +551,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.reject(new Error('unexpected PouchDB put operation'));
 				}
 			});
-			return lostofs.test.dbop.mkfile(
+			return lostofs.dbop.mkfile(
 					db, 'i_5', {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}},
 					'bat', 'bat_content', 100, new Date(), undefined, 'test/type'
 					).then(function (result) {
@@ -566,7 +566,7 @@ describe('dbop (DB operation)', function () {
 				expect(result.mime_type).toEqual('test/type');
 				expect(result.encoding).toEqual(undefined);
 			}).then(() => {
-				return lostofs.test.dbop.mkfile(
+				return lostofs.dbop.mkfile(
 					db, 'i_5', {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}},
 					'bat', 'bat_content', 100, undefined, undefined, 'test/type'
 					);
@@ -624,7 +624,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.reject(new Error('unexpected PouchDB get operation'));
 				}
 			});
-			return lostofs.test.dbop.savefile(
+			return lostofs.dbop.savefile(
 					db, {_id:'i_5',type:'file'}, 'bat_content_v2',
 					101, new Date(), undefined, 'test/type'
 					).then((result) => {
@@ -639,7 +639,7 @@ describe('dbop (DB operation)', function () {
 				expect(result.mime_type).toEqual('test/type');
 				expect(result.encoding).toEqual(undefined);
 			}).then(() => {
-				return lostofs.test.dbop.savefile(
+				return lostofs.dbop.savefile(
 					db, {_id:'i_5',type:'file'}, 'bat_content_v2',
 					101, undefined, undefined, 'test/type'
 					);
@@ -664,7 +664,7 @@ describe('dbop (DB operation)', function () {
 		it('throws an error when the target is a directory', function () {
 			let db = new PouchDB('lostofs_fs');
 			return new Promise(function (fff, rej) {
-				return lostofs.test.dbop.savefile(
+				return lostofs.dbop.savefile(
 						db, {_id:'i_5',type:'dir'}, 'bat_content_v2',
 						101, undefined, undefined, 'test/type'
 						).then((result) => {
@@ -685,7 +685,7 @@ describe('dbop (DB operation)', function () {
 		it('throws an error when the target name does not exist', function () {
 			let db = new PouchDB('lostofs_fs');
 			return new Promise(function (fff, rej) {
-				lostofs.test.dbop.move(
+				lostofs.dbop.move(
 						db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3'}}, 'foo',
 						{_id:'i_40',type:'dir',content:{'.':'i_40','..':'i_30'}}, 'bar'
 						).then(function (result) {
@@ -702,7 +702,7 @@ describe('dbop (DB operation)', function () {
 		it('throws an error when the target name exists in destination dir', function () {
 			let db = new PouchDB('lostofs_fs');
 			return new Promise(function (fff, rej) {
-				lostofs.test.dbop.move(
+				lostofs.dbop.move(
 						db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'foo',
 						{_id:'i_40',type:'dir',content:{'.':'i_40','..':'i_30','bar':'i_5'}}, 'bar'
 						).then(function (result) {
@@ -734,7 +734,7 @@ describe('dbop (DB operation)', function () {
 			mocks.o(db).m('get').wrap(function (helper) {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			return lostofs.test.dbop.move(
+			return lostofs.dbop.move(
 					db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'foo',
 					{_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'bar'
 					).then(function (result) {
@@ -767,7 +767,7 @@ describe('dbop (DB operation)', function () {
 					return Promise.resolve({_id:'i_30',rev:'123',type:'dir',content:{'.':'i_30','..':'i_30'}});
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
-			return lostofs.test.dbop.move(
+			return lostofs.dbop.move(
 					db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'foo',
 					{_id:'i_40',type:'dir',content:{'.':'i_40','..':'i_30'}}, 'bar'
 					).then(function (result) {
@@ -801,7 +801,7 @@ describe('dbop (DB operation)', function () {
 				return Promise.resolve({_id:helper.args[0],rev:'123'});
 			});
 			return new Promise(function (fff, rej) {
-				return lostofs.test.dbop.move(
+				return lostofs.dbop.move(
 						db, {_id:'i_4',type:'dir',content:{'.':'i_4','..':'i_3','foo':'i_5'}}, 'foo',
 						{_id:'i_40',type:'dir',content:{'.':'i_40','..':'i_30'}}, 'bar'
 						).then(function (result) {

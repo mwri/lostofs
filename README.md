@@ -97,8 +97,6 @@ fs.ready().then(function () {               // wait for the FS to come online
 6. [Logging](#logging)
 7. [Implementation notes](#implementation-notes)
 8. [Development](#development)
-   1. [Build](#build)
-   2. [Web applications](#web-applications)
 
 ## Getting started
 
@@ -738,26 +736,3 @@ consider the following guidelines:
 
 Issues are also (sort of) welcome, should you believe there is a bug or
 want to promote or discuss an enhancement.
-
-### Build
-
-run `npm install` to install the dev/build dependencies, and `grunt build`
-to build.
-
-This will build `dist/lostofs.js` and run the unit tests.
-
-Running `grunt watch_dev` will invoke the most light weight possible file
-watch lint build and test cycle. Running `grunt watch_full` will watch for
-file changes and instigate a full build including coverage reports.
-
-### Web applications
-
-LOSTOFS uses aspects of the NodeJS environment, as as such calls `require`.
-In order to use it in a web browser environment then it must be bundled in
-some way. Either require it, and bundle it with [Webpack](https://webpack.js.org/)
-or [Browserify](http://browserify.org/) along with the rest of your app, or
-if you currently do not use Webpack or Browserify you could use the pre built
-minified bundle, [LOSTOFS FILEMANAGER](https://github.com/mwri/jquery.lostofsfileman)
-uses this pre built bundle for its demo, which is then included
-by the HTML like any other dependency free Javascript module designed
-specifically for or to be compatible with the browser.

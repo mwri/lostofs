@@ -4,7 +4,7 @@
 'use strict';
 
 
-let lostofs    = require('./../dist/lostofs.js');
+let lostofs    = require('./../lib/lostofs.js');
 let lostofs_fs = lostofs.fs;
 
 require('chai-jasmine');

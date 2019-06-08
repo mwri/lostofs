@@ -10,7 +10,7 @@ let mockset = mimock.mockset;
 let gl_mocks    = global.lostofs_fs_tests.gl_mocks;
 let pouchdb_lib = global.lostofs_fs_tests.pouchdb_lib;
 
-let lostofs     = require('./../dist/lostofs.js');
+let lostofs     = require('./../lib/lostofs.js');
 let lostofs_fs  = lostofs.fs;
 let lostofs_ent = lostofs.ent;
 
@@ -27,7 +27,7 @@ describe('format', function () {
 		fs = new lostofs_fs();
 		let call_count = 0;
 		expect(fs.locks.test_locks({superblock:'write'})).toBe(0);
-		let dbop_mk_superblock_wrap = mocks.o(lostofs.test.dbop).m('mk_superblock').w(function (helper) {
+		let dbop_mk_superblock_wrap = mocks.o(lostofs.dbop).m('mk_superblock').w(function (helper) {
 			call_count++;
 			expect(fs.locks.test_locks({superblock:'write'})).not.toBe(0);
 			return helper.continue();
@@ -44,7 +44,7 @@ describe('format', function () {
 		fs = new lostofs_fs();
 		let call_count = 0;
 		expect(fs.locks.test_locks({superblock:'write'})).toBe(0);
-		let dbop_mk_superblock_wrap = mocks.o(lostofs.test.dbop).m('mk_superblock').w(function (helper) {
+		let dbop_mk_superblock_wrap = mocks.o(lostofs.dbop).m('mk_superblock').w(function (helper) {
 			call_count++;
 			expect(fs.locks.test_locks({superblock:'write'})).not.toBe(0);
 			return Promise.reject(new Error('beetle'));

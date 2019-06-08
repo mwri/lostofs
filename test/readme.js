@@ -16,7 +16,7 @@ describe('readme', function () {
 
 	it('synopsis', function () {
 
-		let lostofs    = require('./../dist/lostofs.js');  // import module
+		let lostofs    = require('./../lib/lostofs.js');  // import module
 		let lostofs_fs = lostofs.fs;
 
 		let fs = new lostofs_fs();                  // create FS
@@ -51,7 +51,7 @@ describe('readme', function () {
 
 	it('imports', function () {
 
-		lostofs      = require('./../dist/lostofs.js');
+		lostofs      = require('./../lib/lostofs.js');
 		lostofs_fs   = lostofs.fs;
 		lostofs_ent  = lostofs.ent;
 		lostofs_dir  = lostofs.dir;

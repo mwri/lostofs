@@ -10,7 +10,7 @@ let mockset = mimock.mockset;
 let gl_mocks    = global.lostofs_fs_tests.gl_mocks;
 let pouchdb_lib = global.lostofs_fs_tests.pouchdb_lib;
 
-let lostofs    = require('./../dist/lostofs.js');
+let lostofs    = require('./../lib/lostofs.js');
 let lostofs_fs = lostofs.fs;
 
 let chai_jasmine = require('chai-jasmine');
@@ -218,7 +218,7 @@ describe('initialisation not ok', function () {
 	it('emits error log and not ready when corrupt', function () {
 		let mocks = new mockset();
 		let db = new PouchDB('lostofs_fs');
-		let db_init_state_wrap = mocks.o(lostofs.test.dbop).m('db_init_state').w(function (helper) {
+		let db_init_state_wrap = mocks.o(lostofs.dbop).m('db_init_state').w(function (helper) {
 			return Promise.resolve('corrupt');
 		});
 		let failed_event_seen = 0;
@@ -258,7 +258,7 @@ describe('initialisation not ok', function () {
 	it('emits error log and not ready when unknown state', function () {
 		let mocks = new mockset();
 		let db = new PouchDB('lostofs_fs');
-		let db_init_state_wrap = mocks.o(lostofs.test.dbop).m('db_init_state').w(function (helper) {
+		let db_init_state_wrap = mocks.o(lostofs.dbop).m('db_init_state').w(function (helper) {
 			return Promise.resolve('blooop');
 		});
 		let failed_event_seen = 0;
@@ -297,7 +297,7 @@ describe('initialisation not ok', function () {
 	it('emits error log and ready rejected when error occurs determining state', function () {
 		let mocks = new mockset();
 		let db = new PouchDB('lostofs_fs');
-		let db_init_state_wrap = mocks.o(lostofs.test.dbop).m('db_init_state').w(function (helper) {
+		let db_init_state_wrap = mocks.o(lostofs.dbop).m('db_init_state').w(function (helper) {
 			return Promise.reject(new Error('uuurrghh'));
 		});
 		let error_event_seen = 0;

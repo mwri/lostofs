@@ -10,7 +10,7 @@ let mockset = mimock.mockset;
 let gl_mocks    = global.lostofs_fs_tests.gl_mocks;
 let pouchdb_lib = global.lostofs_fs_tests.pouchdb_lib;
 
-let lostofs     = require('./../dist/lostofs.js');
+let lostofs     = require('./../lib/lostofs.js');
 let lostofs_fs  = lostofs.fs;
 let lostofs_ent = lostofs.ent;
 
