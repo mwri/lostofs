@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "polylock": "^1.0.6",
-    "pouchdb": "^6.4.3"
+    "pouchdb": "^7.1.1"
   },
   "repository": {
     "type": "git",
